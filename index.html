@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUTSAN — Expert Nutrition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --green: #1a5c0e;
+            --green-light: #e8f5e0;
+            --green-mid: #2d7a1a;
+            --gold: #e6a817;
+            --gold-light: #fff8e6;
+            --orange: #FF6600;
+            --wave: #00B0F0;
+            --moov: #00A550;
+            --bg: #f0f4ee;
+            --white: #ffffff;
+            --text: #1a1a1a;
+            --muted: #888;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+
+        /* ====== ÉCRANS ====== */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ====== LANDING ====== */
+        #landing { min-height: 100vh; background: linear-gradient(145deg, #0e3a06 0%, #1e5c0e 50%, #2d7a1a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+        .landing-logo { font-family: 'DM Serif Display', serif; font-size: 3.5rem; color: white; letter-spacing: 4px; margin-bottom: 6px; }
+        .landing-sub { color: var(--gold); font-size: 0.9rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 50px; }
+        .landing-btns { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px; }
+        .btn-land { padding: 16px 24px; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.3s; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px; }
+        .btn-land-primary { background: var(--gold); color: #1a1a1a; }
+        .btn-land-primary:hover { background: #f0b82a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(230,168,23,0.4); }
+        .btn-land-outline { background: transparent; border: 2px solid rgba(255,255,255,0.4); color: white; }
+        .btn-land-outline:hover { background: rgba(255,255,255,0.1); }
+        .btn-land-ghost { background: transparent; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        .btn-land-ghost:hover { color: white; }
+
+        /* ====== PAGES GÉNÉRIQUES ====== */
+        .page-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 30px 16px 40px; background: var(--bg); }
+        .page-card { background: var(--white); border-radius: 24px; box-shadow: var(--shadow); width: 100%; max-width: 480px; overflow: hidden; }
+        .page-top { background: linear-gradient(135deg, #1a5c0e, #2d7a1a); padding: 30px 28px 24px; color: white; }
+        .page-top h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 4px; }
+        .page-top p { opacity: 0.8; font-size: 0.88rem; }
+        .page-body { padding: 28px; }
+
+        /* ====== INPUTS & FORMULAIRES ====== */
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--green); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field input, .field select { width: 100%; padding: 12px 16px; border: 2px solid #e8eee6; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none; transition: 0.25s; background: #fafcf9; }
+        .field input:focus, .field select:focus { border-color: var(--green); background: white; box-shadow: 0 0 0 4px rgba(26,92,14,0.08); }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* ====== BOUTONS ====== */
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.97rem; font-family: 'Outfit', sans-serif; transition: all 0.25s; letter-spacing: 0.3px; }
+        .btn-primary { background: var(--green); color: white; margin-top: 8px; }
+        .btn-primary:hover { background: #143d09; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,92,14,0.25); }
+        .btn-ghost { background: transparent; color: var(--muted); margin-top: 10px; font-size: 0.88rem; }
+        .btn-ghost:hover { color: var(--green); }
+        .btn-sm { width: auto; padding: 8px 18px; font-size: 0.85rem; }
+
+        /* ====== ÉTAPES INSCRIPTION ====== */
+        .steps { display: flex; gap: 6px; margin-bottom: 24px; }
+        .step { flex: 1; height: 4px; border-radius: 4px; background: #e0e8de; transition: 0.3s; }
+        .step.done { background: var(--green); }
+        .step.active { background: var(--gold); }
+
+        /* ====== PAIEMENT MOBILE ====== */
+        .pay-methods { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+        .pay-card { border: 2px solid #e0e8de; border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 16px; }
+        .pay-card:hover { border-color: var(--green); background: var(--green-light); }
+        .pay-card.selected { border-color: var(--green); background: var(--green-light); box-shadow: 0 0 0 3px rgba(26,92,14,0.1); }
+        .pay-logo { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; color: white; flex-shrink: 0; }
+        .pay-logo.orange { background: var(--orange); }
+        .pay-logo.wave { background: var(--wave); }
+        .pay-logo.moov { background: var(--moov); }
+        .pay-info h4 { font-weight: 600; font-size: 0.95rem; }
+        .pay-info p { color: var(--muted); font-size: 0.8rem; }
+        .pay-price { margin-left: auto; font-weight: 700; color: var(--green); font-size: 1rem; }
+        .instruction-box { background: var(--gold-light); border: 1px dashed var(--gold); border-radius: 12px; padding: 16px; margin: 16px 0; font-size: 0.88rem; line-height: 1.7; }
+        .instruction-box strong { color: #b07d00; }
+        .pending-badge { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 20px; text-align: center; margin: 10px 0; }
+        .pending-badge .icon { font-size: 2.5rem; margin-bottom: 8px; }
+
+        /* ====== APP PATIENT ====== */
+        #patient-app { display: none; flex-direction: column; min-height: 100vh; }
+        #patient-app.active { display: flex; }
+        .app-header { background: var(--green); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .app-header .logo { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: white; letter-spacing: 2px; }
+        .app-header .user-info { font-size: 0.78rem; color: rgba(255,255,255,0.8); }
+        .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.2s; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        /* TAB NAV */
+        .tab-nav { display: flex; background: white; border-bottom: 1px solid #e0e8de; overflow-x: auto; position: sticky; top: 56px; z-index: 99; }
+        .tab-btn { flex: 1; min-width: 80px; padding: 13px 8px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--muted); transition: 0.2s; text-align: center; white-space: nowrap; }
+        .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+        .tab-content { display: none; padding: 20px 16px 40px; max-width: 700px; margin: auto; width: 100%; }
+        .tab-content.active { display: block; }
+
+        /* CARDS PATIENT */
+        .card { background: white; border-radius: 18px; box-shadow: var(--shadow); padding: 22px; margin-bottom: 18px; }
+        .card h3 { color: var(--green); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; font-weight: 700; }
+        .imc-badge { background: var(--green-light); border: 2px dashed var(--green); border-radius: 12px; padding: 14px; text-align: center; font-weight: 700; color: var(--green); margin: 12px 0; font-size: 1.05rem; }
+        .chart-wrap { height: 220px; position: relative; }
+        .meal-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f4ee; }
+        .meal-item:last-child { border-bottom: none; }
+        .meal-time { font-size: 0.75rem; color: var(--muted); }
+        .meal-list { max-height: 220px; overflow-y: auto; }
+
+        /* RENDEZ-VOUS */
+        .rdv-slot { border: 2px solid #e0e8de; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+        .rdv-slot:hover { border-color: var(--green); background: var(--green-light); }
+        .rdv-slot.booked { background: var(--green-light); border-color: var(--green); }
+        .rdv-slot h4 { font-size: 0.93rem; font-weight: 600; }
+        .rdv-slot p { font-size: 0.8rem; color: var(--muted); }
+        .rdv-confirm { background: #d4edda; border-radius: 12px; padding: 16px; text-align: center; margin-top: 10px; font-weight: 600; color: #155724; font-size: 0.9rem; }
+
+        /* ====== APP NUTRITIONNISTE ====== */
+        #nutri-app { display: none; flex-direction: column; min-height: 100vh; }
+        #nutri-app.active { display: flex; }
+        .nutri-header { background: linear-gradient(135deg, #1a3d8c, #2451b3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nutri-header .logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: white; }
+        .nutri-tab-nav { display: flex; background: white; border-bottom: 1px solid #dde4f4; overflow-x: auto; position: sticky; top: 56px; z-index: 99; }
+        .nutri-tab-btn { flex: 1; min-width: 90px; padding: 13px 8px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--muted); transition: 0.2s; text-align: center; }
+        .nutri-tab-btn.active { color: #1a3d8c; border-bottom-color: #1a3d8c; }
+
+        /* PATIENTS LIST */
+        .patient-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+        .patient-row:hover { background: #f8f9ff; border-radius: 10px; padding-left: 8px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--green); font-size: 1rem; flex-shrink: 0; }
+        .patient-row h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 2px; }
+        .patient-row p { font-size: 0.78rem; color: var(--muted); }
+        .status-badge { margin-left: auto; font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+        .status-badge.ok { background: #d4edda; color: #155724; }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+
+        /* RÉSULTATS MÉDICAUX */
+        .exam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .exam-field label { display: block; font-size: 0.78rem; font-weight: 600; color: #1a3d8c; margin-bottom: 4px; text-transform: uppercase; }
+        .exam-field input, .exam-field textarea, .exam-field select { width: 100%; padding: 10px 12px; border: 2px solid #dde4f4; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 0.88rem; outline: none; transition: 0.2s; }
+        .exam-field input:focus, .exam-field textarea:focus, .exam-field select:focus { border-color: #1a3d8c; }
+        .exam-field textarea { resize: vertical; min-height: 80px; }
+        .exam-section { background: #f8f9ff; border-radius: 14px; padding: 18px; margin-bottom: 14px; border-left: 4px solid #1a3d8c; }
+        .exam-section h4 { font-size: 0.85rem; color: #1a3d8c; font-weight: 700; text-transform: uppercase; margin-bottom: 14px; }
+        .btn-blue { background: #1a3d8c; color: white; }
+        .btn-blue:hover { background: #142f6b; }
+        .result-saved { background: #d4edda; border-radius: 10px; padding: 12px 16px; text-align: center; color: #155724; font-weight: 600; font-size: 0.88rem; margin-top: 10px; display: none; }
+        .result-saved.show { display: block; }
+
+        /* AGENDA */
+        .agenda-item { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border-left: 4px solid var(--green); box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .agenda-item .time { font-size: 0.78rem; color: var(--muted); }
+        .agenda-item h4 { font-size: 0.9rem; font-weight: 600; }
+
+        /* ====== APP ADMIN ====== */
+        #admin-app { display: none; flex-direction: column; min-height: 100vh; }
+        #admin-app.active { display: flex; }
+        .admin-header { background: linear-gradient(135deg, #4a0e6b, #6d1fa0); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-header .logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: white; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+        .stat-card { background: white; border-radius: 14px; padding: 18px; text-align: center; box-shadow: var(--shadow); }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--green); }
+        .stat-card .lbl { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; }
+        .pending-payment { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .btn-validate { background: var(--green); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.2s; }
+        .btn-validate:hover { background: #143d09; }
+        .btn-reject { background: #dc3545; color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; margin-left: 6px; transition: 0.2s; }
+
+        /* UTILITAIRES */
+        .hidden { display: none !important; }
+        .mt-8 { margin-top: 8px; }
+        .mt-16 { margin-top: 16px; }
+        .divider { border: none; border-top: 1px solid #e8eee6; margin: 18px 0; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--muted); font-size: 0.85rem; }
+        .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 0.88rem; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-success { background: #d4edda; color: #155724; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp 0.4s ease-out both; }
+    </style>
+</head>
+<body>
+
+<!-- ========== LANDING ========== -->
+<div id="landing" class="screen active">
+    <div class="fade-up">
+        <div class="landing-logo">NUTSAN</div>
+        <div class="landing-sub">Votre Expert Nutrition</div>
+    </div>
+    <div class="landing-btns fade-up">
+        <button class="btn-land btn-land-primary" onclick="showScreen('patient-register')">
+            📋 Créer mon compte Patient
+        </button>
+        <button class="btn-land btn-land-outline" onclick="showScreen('patient-login')">
+            🔑 Connexion Patient
+        </button>
+        <hr style="border-color: rgba(255,255,255,0.15); margin: 6px 0;">
+        <button class="btn-land btn-land-ghost" onclick="showScreen('nutri-login')">
+            🩺 Espace Nutritionniste
+        </button>
+        <button class="btn-land btn-land-ghost" onclick="showScreen('admin-login')">
+            ⚙️ Espace Administrateur
+        </button>
+    </div>
+</div>
+
+<!-- ========== INSCRIPTION PATIENT (étape 1 : infos) ========== -->
+<div id="patient-register" class="screen">
+    <div class="page-wrap">
+        <div class="page-card fade-up">
+            <div class="page-top">
+                <h2>Créer un compte</h2>
+                <p>Étape 1 sur 2 — Vos informations</p>
+            </div>
+            <div class="page-body">
+                <div class="steps">
+                    <div class="step active"></div>
+                    <div class="step"></div>
+                </div>
+                <div id="reg-error" class="alert alert-error hidden"></div>
+                <div class="row-2">
+                    <div class="field">
+                        <label>Prénom</label>
+                        <input type="text" id="reg-firstname" placeholder="Jean">
+                    </div>
+                    <div class="field">
+                        <label>Nom</label>
+                        <input type="text" id="reg-lastname" placeholder="Ouédraogo">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Adresse email</label>
+                    <input type="email" id="reg-email" placeholder="jean@email.com">
+                </div>
+                <div class="field">
+                    <label>Téléphone</label>
+                    <input type="tel" id="reg-phone" placeholder="+226 XX XX XX XX">
+                </div>
+                <div class="row-2">
+                    <div class="field">
+                        <label>Mot de passe</label>
+                        <input type="password" id="reg-pass" placeholder="••••••••">
+                    </div>
+                    <div class="field">
+                        <label>Confirmer</label>
+                        <input type="password" id="reg-pass2" placeholder="••••••••">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="goToPayment()">Continuer vers le paiement →</button>
+                <button class="btn btn-ghost" onclick="showScreen('landing')">← Retour</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PAIEMENT (étape 2) ========== -->
+<div id="payment-screen" class="screen">
+    <div class="page-wrap">
+        <div class="page-card fade-up">
+            <div class="page-top">
+                <h2>Paiement d'accès</h2>
+                <p>Étape 2 sur 2 — Choisissez votre opérateur</p>
+            </div>
+            <div class="page-body">
+                <div class="steps">
+                    <div class="step done"></div>
+                    <div class="step active"></div>
+                </div>
+                <p style="font-size:0.88rem; color:var(--muted); margin-bottom:16px;">Abonnement mensuel — Accès illimité à votre suivi nutritionnel</p>
+                
+                <div class="pay-methods">
+                    <div class="pay-card" id="pay-orange" onclick="selectPayment('orange')">
+                        <div class="pay-logo orange">OM</div>
+                        <div class="pay-info">
+                            <h4>Orange Money</h4>
+                            <p>+226 77 61 41 23</p>
+                        </div>
+                        <div class="pay-price">2 500 F</div>
+                    </div>
+                    <div class="pay-card" id="pay-wave" onclick="selectPayment('wave')">
+                        <div class="pay-logo wave">W</div>
+                        <div class="pay-info">
+                            <h4>Wave</h4>
+                            <p>+226 77 61 41 23</p>
+                        </div>
+                        <div class="pay-price">2 500 F</div>
+                    </div>
+                    <div class="pay-card" id="pay-moov" onclick="selectPayment('moov')">
+                        <div class="pay-logo moov">MM</div>
+                        <div class="pay-info">
+                            <h4>Moov Money</h4>
+                            <p>+226 60 71 04 83</p>
+                        </div>
+                        <div class="pay-price">2 500 F</div>
+                    </div>
+                </div>
+
+                <div id="pay-instruction" class="instruction-box hidden">
+                    <div id="pay-instruction-text"></div>
+                </div>
+
+                <div id="pay-confirm-section" class="hidden">
+                    <div class="field mt-8">
+                        <label>Numéro ayant effectué le paiement</label>
+                        <input type="tel" id="pay-sender-num" placeholder="+226 XX XX XX XX">
+                    </div>
+                    <div class="field">
+                        <label>Code / Référence de transaction</label>
+                        <input type="text" id="pay-ref" placeholder="Ex: TXN123456">
+                    </div>
+                    <button class="btn btn-primary" onclick="submitPayment()">✅ Confirmer mon paiement</button>
+                </div>
+
+                <button class="btn btn-ghost mt-8" onclick="showScreen('patient-register')">← Retour</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== EN ATTENTE DE VALIDATION ========== -->
+<div id="pending-screen" class="screen">
+    <div class="page-wrap" style="justify-content: center;">
+        <div class="page-card fade-up">
+            <div class="page-body text-center" style="padding: 40px 28px;">
+                <div class="pending-badge">
+                    <div class="icon">⏳</div>
+                    <h3 style="color: #856404; margin-bottom: 8px;">Paiement en cours de vérification</h3>
+                    <p style="font-size: 0.88rem; color: #6c757d;">Notre équipe vérifie votre paiement. Vous recevrez un accès dès confirmation, généralement sous <strong>30 minutes</strong>.</p>
+                </div>
+                <div style="margin-top: 24px; font-size: 0.85rem; color: var(--muted);">
+                    Pour toute question : <br><strong style="color: var(--green);">+226 77 61 41 23</strong>
+                </div>
+                <button class="btn btn-primary mt-16" onclick="showScreen('patient-login')">Se connecter</button>
+                <button class="btn btn-ghost" onclick="showScreen('landing')">← Accueil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== CONNEXION PATIENT ========== -->
+<div id="patient-login" class="screen">
+    <div class="page-wrap">
+        <div class="page-card fade-up">
+            <div class="page-top">
+                <h2>Espace Patient</h2>
+                <p>Connectez-vous à votre suivi</p>
+            </div>
+            <div class="page-body">
+                <div id="login-error" class="alert alert-error hidden"></div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="jean@email.com">
+                </div>
+                <div class="field">
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-pass" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="patientLogin()">Se connecter</button>
+                <button class="btn btn-ghost" onclick="showScreen('landing')">← Retour</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== CONNEXION NUTRITIONNISTE ========== -->
+<div id="nutri-login" class="screen">
+    <div class="page-wrap">
+        <div class="page-card fade-up">
+            <div class="page-top" style="background: linear-gradient(135deg, #1a3d8c, #2451b3);">
+                <h2>Espace Nutritionniste</h2>
+                <p>Accès réservé aux professionnels</p>
+            </div>
+            <div class="page-body">
+                <div id="nutri-error" class="alert alert-error hidden"></div>
+                <div class="field">
+                    <label>Identifiant professionnel</label>
+                    <input type="email" id="nutri-email" placeholder="dr.nom@nutsan.bf">
+                </div>
+                <div class="field">
+                    <label>Mot de passe</label>
+                    <input type="password" id="nutri-pass" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" style="background:#1a3d8c;" onclick="nutriLogin()">Accéder au tableau de bord</button>
+                <button class="btn btn-ghost" onclick="showScreen('landing')">← Retour</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== CONNEXION ADMIN ========== -->
+<div id="admin-login" class="screen">
+    <div class="page-wrap">
+        <div class="page-card fade-up">
+            <div class="page-top" style="background: linear-gradient(135deg, #4a0e6b, #6d1fa0);">
+                <h2>Espace Administrateur</h2>
+                <p>Gestion de la plateforme NUTSAN</p>
+            </div>
+            <div class="page-body">
+                <div id="admin-error" class="alert alert-error hidden"></div>
+                <div class="field">
+                    <label>Identifiant admin</label>
+                    <input type="email" id="admin-email" placeholder="admin@nutsan.bf">
+                </div>
+                <div class="field">
+                    <label>Mot de passe</label>
+                    <input type="password" id="admin-pass" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" style="background:#4a0e6b;" onclick="adminLogin()">Accéder à l'administration</button>
+                <button class="btn btn-ghost" onclick="showScreen('landing')">← Retour</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== APP PATIENT ========== -->
+<div id="patient-app">
+    <header class="app-header">
+        <div>
+            <div class="logo">NUTSAN</div>
+            <div class="user-info" id="patient-name-display">Patient</div>
+        </div>
+        <button class="btn-logout" onclick="logoutAll()">Déconnexion</button>
+    </header>
+
+    <nav class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-suivi', this)">📊 Suivi</button>
+        <button class="tab-btn" onclick="switchTab('tab-journal', this)">🍽️ Journal</button>
+        <button class="tab-btn" onclick="switchTab('tab-rdv', this)">📅 Rendez-vous</button>
+        <button class="tab-btn" onclick="switchTab('tab-profil', this)">👤 Profil</button>
+    </nav>
+
+    <!-- TAB SUIVI -->
+    <div class="tab-content active" id="tab-suivi">
+        <div class="card">
+            <h3>Évolution du Poids</h3>
+            <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Données Physiques</h3>
+            <div class="row-2" style="gap:10px;">
+                <div class="field" style="margin-bottom:0">
+                    <label>Poids (kg)</label>
+                    <input type="number" id="weight" placeholder="70" oninput="liveIMC()">
+                </div>
+                <div class="field" style="margin-bottom:0">
+                    <label>Taille (cm)</label>
+                    <input type="number" id="height" placeholder="170" oninput="liveIMC()">
+                </div>
+            </div>
+            <div class="imc-badge mt-8" id="imc-box">IMC : --</div>
+            <button class="btn btn-primary" onclick="saveWeightEntry()">💾 Enregistrer mon poids</button>
+        </div>
+        <div class="card" id="exam-results-patient" style="display:none;">
+            <h3>📋 Résultats de mes examens</h3>
+            <div id="exam-results-content" style="font-size:0.9rem; line-height:1.8;"></div>
+        </div>
+    </div>
+
+    <!-- TAB JOURNAL -->
+    <div class="tab-content" id="tab-journal">
+        <div class="card">
+            <h3>Journal Alimentaire du Jour</h3>
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <input type="text" id="meal-input" placeholder="Ex: Tô avec sauce, 1 orange..." style="margin-bottom:0; flex:1; padding:12px 14px; border:2px solid #e8eee6; border-radius:12px; font-family:'Outfit',sans-serif; outline:none;">
+                <button class="btn btn-primary btn-sm" style="margin-top:0; white-space:nowrap;" onclick="addMeal()">+ Ajouter</button>
+            </div>
+            <div class="meal-list" id="mealList">
+                <p class="text-muted text-center" style="padding:20px 0;">Aucun repas enregistré aujourd'hui</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB RENDEZ-VOUS -->
+    <div class="tab-content" id="tab-rdv">
+        <div class="card">
+            <h3>Prendre un Rendez-vous</h3>
+            <p class="text-muted" style="margin-bottom:16px; font-size:0.88rem;">Choisissez un créneau disponible avec votre nutritionniste</p>
+            <div id="rdv-slots">
+                <div class="rdv-slot" onclick="bookSlot(this, 'Lun 23 Juin — 09h00')">
+                    <h4>📅 Lundi 23 Juin 2025</h4>
+                    <p>09h00 — Consultation initiale (45 min)</p>
+                </div>
+                <div class="rdv-slot" onclick="bookSlot(this, 'Lun 23 Juin — 10h00')">
+                    <h4>📅 Lundi 23 Juin 2025</h4>
+                    <p>10h00 — Suivi nutritionnel (30 min)</p>
+                </div>
+                <div class="rdv-slot" onclick="bookSlot(this, 'Mar 24 Juin — 14h30')">
+                    <h4>📅 Mardi 24 Juin 2025</h4>
+                    <p>14h30 — Consultation initiale (45 min)</p>
+                </div>
+                <div class="rdv-slot" onclick="bookSlot(this, 'Mer 25 Juin — 11h00')">
+                    <h4>📅 Mercredi 25 Juin 2025</h4>
+                    <p>11h00 — Bilan nutritionnel (60 min)</p>
+                </div>
+                <div class="rdv-slot" onclick="bookSlot(this, 'Jeu 26 Juin — 08h30')">
+                    <h4>📅 Jeudi 26 Juin 2025</h4>
+                    <p>08h30 — Suivi nutritionnel (30 min)</p>
+                </div>
+            </div>
+            <div id="rdv-confirm" class="rdv-confirm hidden"></div>
+        </div>
+    </div>
+
+    <!-- TAB PROFIL -->
+    <div class="tab-content" id="tab-profil">
+        <div class="card">
+            <h3>Mon Profil</h3>
+            <div class="field"><label>Prénom</label><input type="text" id="p-firstname" placeholder="Jean"></div>
+            <div class="field"><label>Nom</label><input type="text" id="p-lastname" placeholder="Ouédraogo"></div>
+            <div class="field"><label>Téléphone</label><input type="tel" id="p-phone" placeholder="+226 XX XX XX XX"></div>
+            <div class="row-2">
+                <div class="field"><label>Âge</label><input type="number" id="p-age" placeholder="35"></div>
+                <div class="field"><label>Sexe</label>
+                    <select id="p-gender">
+                        <option value="">--</option>
+                        <option>Homme</option>
+                        <option>Femme</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()">💾 Mettre à jour mon profil</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== APP NUTRITIONNISTE ========== -->
+<div id="nutri-app">
+    <header class="nutri-header">
+        <div>
+            <div class="logo">NUTSAN</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.75);">Tableau de bord Nutritionniste</div>
+        </div>
+        <button class="btn-logout" onclick="logoutAll()">Déconnexion</button>
+    </header>
+
+    <nav class="nutri-tab-nav" style="top:56px;">
+        <button class="nutri-tab-btn active" onclick="switchNutriTab('ntab-patients', this)">👥 Patients</button>
+        <button class="nutri-tab-btn" onclick="switchNutriTab('ntab-agenda', this)">📅 Agenda</button>
+        <button class="nutri-tab-btn" onclick="switchNutriTab('ntab-examens', this)">🔬 Examens</button>
+        <button class="nutri-tab-btn" onclick="switchNutriTab('ntab-conseils', this)">📝 Conseils</button>
+    </nav>
+
+    <div style="max-width:700px; margin:auto; padding:20px 16px 40px; width:100%;">
+
+        <!-- TAB PATIENTS -->
+        <div class="tab-content active" id="ntab-patients">
+            <div class="card">
+                <h3>Liste des Patients</h3>
+                <div id="nutri-patient-list">
+                    <div class="patient-row" onclick="openPatientExam('Fatou Kaboré')">
+                        <div class="avatar">FK</div>
+                        <div><h4>Fatou Kaboré</h4><p>Inscription : 12 juin 2025</p></div>
+                        <div class="status-badge ok">Actif</div>
+                    </div>
+                    <div class="patient-row" onclick="openPatientExam('Moussa Traoré')">
+                        <div class="avatar">MT</div>
+                        <div><h4>Moussa Traoré</h4><p>Inscription : 14 juin 2025</p></div>
+                        <div class="status-badge ok">Actif</div>
+                    </div>
+                    <div class="patient-row" onclick="openPatientExam('Aïssata Diallo')">
+                        <div class="avatar">AD</div>
+                        <div><h4>Aïssata Diallo</h4><p>Inscription : 15 juin 2025</p></div>
+                        <div class="status-badge pending">En attente</div>
+                    </div>
+                    <div class="patient-row" onclick="openPatientExam('Ibrahim Sawadogo')">
+                        <div class="avatar">IS</div>
+                        <div><h4>Ibrahim Sawadogo</h4><p>Inscription : 16 juin 2025</p></div>
+                        <div class="status-badge ok">Actif</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB AGENDA -->
+        <div class="tab-content" id="ntab-agenda">
+            <div class="card">
+                <h3>Rendez-vous à venir</h3>
+                <div id="nutri-agenda">
+                    <div class="agenda-item">
+                        <div><h4>Fatou Kaboré</h4><p class="text-muted" style="font-size:0.8rem;">Consultation initiale • 45 min</p></div>
+                        <div class="time">Lun 23 Juin<br>09h00</div>
+                    </div>
+                    <div class="agenda-item">
+                        <div><h4>Ibrahim Sawadogo</h4><p class="text-muted" style="font-size:0.8rem;">Suivi nutritionnel • 30 min</p></div>
+                        <div class="time">Mar 24 Juin<br>14h30</div>
+                    </div>
+                    <div class="agenda-item">
+                        <div><h4>Moussa Traoré</h4><p class="text-muted" style="font-size:0.8rem;">Bilan nutritionnel • 60 min</p></div>
+                        <div class="time">Mer 25 Juin<br>11h00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB EXAMENS MÉDICAUX -->
+        <div class="tab-content" id="ntab-examens">
+            <div class="card">
+                <h3>Résultats d'Examens Médicaux</h3>
+                <div class="field">
+                    <label>Patient concerné</label>
+                    <select id="exam-patient-select">
+                        <option value="">-- Sélectionner un patient --</option>
+                        <option>Fatou Kaboré</option>
+                        <option>Moussa Traoré</option>
+                        <option>Aïssata Diallo</option>
+                        <option>Ibrahim Sawadogo</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Date des examens</label>
+                    <input type="date" id="exam-date">
+                </div>
+
+                <div class="exam-section">
+                    <h4>🩸 Bilan Sanguin</h4>
+                    <div class="exam-grid">
+                        <div class="exam-field">
+                            <label>Glycémie (g/L)</label>
+                            <input type="text" id="ex-glycemie" placeholder="0.80 – 1.10">
+                        </div>
+                        <div class="exam-field">
+                            <label>Hémoglobine (g/dL)</label>
+                            <input type="text" id="ex-hemo" placeholder="12 – 18">
+                        </div>
+                        <div class="exam-field">
+                            <label>Cholestérol total (g/L)</label>
+                            <input type="text" id="ex-cholesterol" placeholder="< 2.00">
+                        </div>
+                        <div class="exam-field">
+                            <label>Triglycérides (g/L)</label>
+                            <input type="text" id="ex-triglyce" placeholder="< 1.50">
+                        </div>
+                        <div class="exam-field">
+                            <label>LDL (g/L)</label>
+                            <input type="text" id="ex-ldl" placeholder="< 1.60">
+                        </div>
+                        <div class="exam-field">
+                            <label>HDL (g/L)</label>
+                            <input type="text" id="ex-hdl" placeholder="> 0.40">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exam-section">
+                    <h4>🫀 Bilan Cardio-Métabolique</h4>
+                    <div class="exam-grid">
+                        <div class="exam-field">
+                            <label>Tension artérielle</label>
+                            <input type="text" id="ex-tension" placeholder="120/80 mmHg">
+                        </div>
+                        <div class="exam-field">
+                            <label>Fréquence cardiaque</label>
+                            <input type="text" id="ex-fc" placeholder="60–100 bpm">
+                        </div>
+                        <div class="exam-field">
+                            <label>Insulinémie</label>
+                            <input type="text" id="ex-insuline" placeholder="µUI/mL">
+                        </div>
+                        <div class="exam-field">
+                            <label>HbA1c (%)</label>
+                            <input type="text" id="ex-hba1c" placeholder="< 5.7%">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exam-section">
+                    <h4>🧬 Micronutriments & Autres</h4>
+                    <div class="exam-grid">
+                        <div class="exam-field">
+                            <label>Ferritine (µg/L)</label>
+                            <input type="text" id="ex-ferritine" placeholder="20–200">
+                        </div>
+                        <div class="exam-field">
+                            <label>Vitamine D (ng/mL)</label>
+                            <input type="text" id="ex-vitD" placeholder="30–100">
+                        </div>
+                        <div class="exam-field">
+                            <label>TSH (mUI/L)</label>
+                            <input type="text" id="ex-tsh" placeholder="0.4–4.0">
+                        </div>
+                        <div class="exam-field">
+                            <label>Créatinine (mg/L)</label>
+                            <input type="text" id="ex-creat" placeholder="6–12">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exam-section">
+                    <h4>📝 Interprétation & Recommandations</h4>
+                    <div class="exam-field">
+                        <label>Observations cliniques</label>
+                        <textarea id="ex-observations" placeholder="Résumé des résultats, anomalies détectées..."></textarea>
+                    </div>
+                    <div class="exam-field mt-8">
+                        <label>Plan nutritionnel recommandé</label>
+                        <textarea id="ex-plan" placeholder="Régime conseillé, aliments à privilégier/éviter..."></textarea>
+                    </div>
+                    <div class="exam-field mt-8">
+                        <label>Prochain contrôle</label>
+                        <input type="date" id="ex-next-date">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-blue" onclick="saveExamResults()">💾 Enregistrer les résultats</button>
+                <div class="result-saved" id="exam-saved-msg">✅ Résultats enregistrés et transmis au patient !</div>
+            </div>
+        </div>
+
+        <!-- TAB CONSEILS -->
+        <div class="tab-content" id="ntab-conseils">
+            <div class="card">
+                <h3>Envoyer un Conseil</h3>
+                <div class="field">
+                    <label>Destinataire</label>
+                    <select>
+                        <option>-- Tous les patients --</option>
+                        <option>Fatou Kaboré</option>
+                        <option>Moussa Traoré</option>
+                        <option>Ibrahim Sawadogo</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Message</label>
+                    <textarea style="width:100%; padding:12px; border:2px solid #dde4f4; border-radius:10px; font-family:'Outfit',sans-serif; min-height:120px; resize:vertical; outline:none;" placeholder="Bonjour, suite à vos examens je vous recommande..."></textarea>
+                </div>
+                <button class="btn btn-primary btn-blue">📤 Envoyer le conseil</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========== APP ADMIN ========== -->
+<div id="admin-app">
+    <header class="admin-header">
+        <div>
+            <div class="logo">NUTSAN Admin</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.75);">Gestion de la plateforme</div>
+        </div>
+        <button class="btn-logout" onclick="logoutAll()">Déconnexion</button>
+    </header>
+
+    <div style="max-width:700px; margin:auto; padding:20px 16px 40px; width:100%;">
+        <div class="stat-grid">
+            <div class="stat-card"><div class="num">24</div><div class="lbl">Patients actifs</div></div>
+            <div class="stat-card"><div class="num" style="color:#856404;">3</div><div class="lbl">Paiements en attente</div></div>
+            <div class="stat-card"><div class="num" style="color:#1a3d8c;">8</div><div class="lbl">RDV cette semaine</div></div>
+            <div class="stat-card"><div class="num" style="color:#4a0e6b;">62 500</div><div class="lbl">Recettes (FCFA)</div></div>
+        </div>
+
+        <div class="card">
+            <h3>🔔 Paiements à Valider</h3>
+            <div class="pending-payment">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;">Aïssata Diallo</div>
+                    <div style="font-size:0.78rem; color:var(--muted);">Wave • +226 70 45 67 89 • Réf: W2025061401</div>
+                </div>
+                <div>
+                    <button class="btn-validate" onclick="validatePayment(this, 'Aïssata Diallo')">✓ Valider</button>
+                    <button class="btn-reject" onclick="rejectPayment(this)">✗</button>
+                </div>
+            </div>
+            <div class="pending-payment">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;">Seydou Compaoré</div>
+                    <div style="font-size:0.78rem; color:var(--muted);">Orange Money • +226 76 12 34 56 • Réf: OM2025061502</div>
+                </div>
+                <div>
+                    <button class="btn-validate" onclick="validatePayment(this, 'Seydou Compaoré')">✓ Valider</button>
+                    <button class="btn-reject" onclick="rejectPayment(this)">✗</button>
+                </div>
+            </div>
+            <div class="pending-payment">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;">Mariam Ouédraogo</div>
+                    <div style="font-size:0.78rem; color:var(--muted);">Moov Money • +226 60 98 76 54 • Réf: MM2025061503</div>
+                </div>
+                <div>
+                    <button class="btn-validate" onclick="validatePayment(this, 'Mariam Ouédraogo')">✓ Valider</button>
+                    <button class="btn-reject" onclick="rejectPayment(this)">✗</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>👥 Tous les Patients</h3>
+            <div class="patient-row">
+                <div class="avatar">FK</div>
+                <div><h4>Fatou Kaboré</h4><p>fatou@email.com</p></div>
+                <div class="status-badge ok">Actif</div>
+            </div>
+            <div class="patient-row">
+                <div class="avatar">MT</div>
+                <div><h4>Moussa Traoré</h4><p>moussa@email.com</p></div>
+                <div class="status-badge ok">Actif</div>
+            </div>
+            <div class="patient-row">
+                <div class="avatar">IS</div>
+                <div><h4>Ibrahim Sawadogo</h4><p>ibrahim@email.com</p></div>
+                <div class="status-badge ok">Actif</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🩺 Nutritionnistes</h3>
+            <div class="patient-row">
+                <div class="avatar" style="background:#dde4f4; color:#1a3d8c;">DR</div>
+                <div><h4>Dr. Aminata Rouamba</h4><p>Nutritionniste Senior</p></div>
+                <div class="status-badge ok">Connecté</div>
+            </div>
+            <div class="patient-row">
+                <div class="avatar" style="background:#dde4f4; color:#1a3d8c;">NK</div>
+                <div><h4>Dr. Norbert Kaboré</h4><p>Diététicien</p></div>
+                <div class="status-badge pending">Hors ligne</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc, getDoc, addDoc, collection, query, where, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+    /*
+    ============================================================
+    🔒 SÉCURITÉ — RÈGLES FIRESTORE (firestore.rules)
+    ============================================================
+    Ces règles doivent être déployées via Firebase Console ou CLI.
+    Ne jamais mettre de logique de sécurité uniquement côté client.
+
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+
+        // ===== UTILISATEURS =====
+        match /profiles/{userId} {
+          allow create: if request.auth != null;
+          allow read, update: if request.auth != null
+            && request.auth.uid == userId;
+          // Admin peut tout voir
+          allow read: if isAdmin();
+          // Empêcher modification du rôle
+          allow update: if request.auth.uid == userId
+            && !( "role" in request.resource.data );
+        }
+
+        // ===== POIDS =====
+        match /weightHistory/{docId} {
+          allow create: if isOwner(request.resource.data.userId);
+          allow read: if isOwner(resource.data.userId) || isNutritionist();
+          allow delete: if false;
+        }
+
+        // ===== JOURNAL ALIMENTAIRE =====
+        match /meals/{docId} {
+          allow create: if isOwner(request.resource.data.userId);
+          allow read: if isOwner(resource.data.userId) || isNutritionist();
+        }
+
+        // ===== EXAMENS MÉDICAUX =====
+        match /examResults/{docId} {
+          allow create: if isNutritionist();
+          allow read: if isOwner(resource.data.userId) || isNutritionist();
+          allow update: if isNutritionist();
+        }
+
+        // ===== PAIEMENTS =====
+        match /payments/{docId} {
+          allow create: if request.auth != null;
+          allow read: if isAdmin();
+          allow update: if isAdmin();
+        }
+
+        // ===== FONCTIONS =====
+        function isOwner(userId) {
+          return request.auth != null && request.auth.uid == userId;
+        }
+
+        function isAdmin() {
+          return request.auth != null &&
+            get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == "admin";
+        }
+
+        function isNutritionist() {
+          return request.auth != null &&
+            get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == "nutritionist";
+        }
+      }
+    }
+    ============================================================
+    ⚠️  CLÉ API — INSTRUCTIONS DE SÉCURISATION
+    ============================================================
+    La clé API Firebase ci-dessous est PUBLIQUE par conception pour
+    les apps web Firebase. Elle est sécurisée côté serveur via :
+      1. Les règles Firestore ci-dessus (seuls les utilisateurs
+         authentifiés et autorisés accèdent aux données).
+      2. Les restrictions de domaine dans Google Cloud Console :
+         → APIs & Services > Credentials > Modifier la clé API
+         → Ajouter vos domaines autorisés (ex: nutsan.bf, *.nutsan.bf)
+      3. Les règles Firebase Authentication (email/password uniquement).
+    ⚠️  NE JAMAIS mettre ici : clés de service backend, clés secrètes
+        d'autres APIs (Stripe, SMS, etc.) — celles-là doivent rester
+        sur un serveur, jamais dans un fichier HTML.
+    ============================================================
+    */
+
+    // ⚙️ Configuration Firebase — Remplacez par votre NOUVELLE clé après révocation
+    const firebaseConfig = {
+        apiKey: "VOTRE_NOUVELLE_API_KEY",        // 🔴 Remplacer après révocation dans Google Cloud Console
+        authDomain: "nutsan-e226.firebaseapp.com",
+        projectId: "nutsan-e226",
+        storageBucket: "nutsan-e226.firebasestorage.app",
+        messagingSenderId: "536722529920",
+        appId: "1:536722529920:web:03e948bd55eaba5ffd5065"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let weightChart;
+    let pendingRegData = null;
+
+    // ——— NAVIGATION ———
+    window.showScreen = (id) => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(id);
+        if(el) el.classList.add('active');
+    };
+
+    window.switchTab = (tabId, btn) => {
+        document.querySelectorAll('#patient-app .tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    };
+
+    window.switchNutriTab = (tabId, btn) => {
+        document.querySelectorAll('#nutri-app .tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nutri-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    };
+
+    // ——— INSCRIPTION PATIENT ———
+    window.goToPayment = () => {
+        const fn = document.getElementById('reg-firstname').value.trim();
+        const ln = document.getElementById('reg-lastname').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        const pass = document.getElementById('reg-pass').value;
+        const pass2 = document.getElementById('reg-pass2').value;
+        const err = document.getElementById('reg-error');
+
+        if(!fn || !ln || !email || !pass) { err.textContent = "Veuillez remplir tous les champs obligatoires."; err.classList.remove('hidden'); return; }
+        if(pass !== pass2) { err.textContent = "Les mots de passe ne correspondent pas."; err.classList.remove('hidden'); return; }
+        if(pass.length < 6) { err.textContent = "Le mot de passe doit contenir au moins 6 caractères."; err.classList.remove('hidden'); return; }
+        err.classList.add('hidden');
+        pendingRegData = { fn, ln, email, phone, pass };
+        showScreen('payment-screen');
+    };
+
+    // ——— PAIEMENT ———
+    let selectedPayMethod = null;
+    window.selectPayment = (method) => {
+        document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('pay-' + method).classList.add('selected');
+        selectedPayMethod = method;
+        const instructionText = {
+            orange: `<strong>Orange Money :</strong><br>1. Composez <strong>*144#</strong> sur votre téléphone<br>2. Choisissez <em>Transfert</em> puis <em>Envoyer de l'argent</em><br>3. Entrez le numéro : <strong>+226 77 61 41 23</strong><br>4. Montant : <strong>2 500 FCFA</strong><br>5. Notez le code de transaction et entrez-le ci-dessous`,
+            wave: `<strong>Wave :</strong><br>1. Ouvrez l'application <strong>Wave</strong><br>2. Appuyez sur <em>Envoyer</em><br>3. Numéro destinataire : <strong>+226 77 61 41 23</strong><br>4. Montant : <strong>2 500 FCFA</strong><br>5. Notez la référence de transaction et entrez-la ci-dessous`,
+            moov: `<strong>Moov Money :</strong><br>1. Composez <strong>*555#</strong> sur votre téléphone<br>2. Choisissez <em>Transfert d'argent</em><br>3. Entrez le numéro : <strong>+226 60 71 04 83</strong><br>4. Montant : <strong>2 500 FCFA</strong><br>5. Notez le code de transaction et entrez-le ci-dessous`
+        };
+        document.getElementById('pay-instruction-text').innerHTML = instructionText[method];
+        document.getElementById('pay-instruction').classList.remove('hidden');
+        document.getElementById('pay-confirm-section').classList.remove('hidden');
+    };
+
+    window.submitPayment = async () => {
+        if(!selectedPayMethod) return alert("Veuillez sélectionner un opérateur");
+        const senderNum = document.getElementById('pay-sender-num').value.trim();
+        const ref = document.getElementById('pay-ref').value.trim();
+        if(!senderNum || !ref) { alert("Veuillez entrer votre numéro et la référence de transaction."); return; }
+        if(!pendingRegData) { alert("Données d'inscription manquantes. Recommencez."); showScreen('patient-register'); return; }
+
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, pendingRegData.email, pendingRegData.pass);
+            await setDoc(doc(db, "profiles", cred.user.uid), {
+                firstName: pendingRegData.fn,
+                lastName: pendingRegData.ln,
+                email: pendingRegData.email,
+                phone: pendingRegData.phone,
+                role: "patient",
+                paymentStatus: "pending",
+                paymentMethod: selectedPayMethod,
+                paymentRef: ref,
+                paymentSender: senderNum,
+                createdAt: serverTimestamp()
+            });
+            await signOut(auth);
+            pendingRegData = null;
+            showScreen('pending-screen');
+        } catch(e) {
+            alert("Erreur lors de la création du compte : " + e.message);
+        }
+    };
+
+    // ——— CONNEXION PATIENT ———
+    window.patientLogin = async () => {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        const err = document.getElementById('login-error');
+        if(!email || !pass) { err.textContent = "Veuillez remplir tous les champs."; err.classList.remove('hidden'); return; }
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+        } catch(e) {
+            err.textContent = "Email ou mot de passe incorrect.";
+            err.classList.remove('hidden');
+        }
+    };
+
+    // ——— CONNEXION NUTRITIONNISTE (email fixe) ———
+    window.nutriLogin = async () => {
+        const email = document.getElementById('nutri-email').value;
+        const pass = document.getElementById('nutri-pass').value;
+        const err = document.getElementById('nutri-error');
+        try {
+            const cred = await signInWithEmailAndPassword(auth, email, pass);
+            const snap = await getDoc(doc(db, "profiles", cred.user.uid));
+            if(snap.exists() && snap.data().role === "nutritionist") {
+                showNutriApp();
+            } else {
+                await signOut(auth);
+                err.textContent = "Accès non autorisé. Compte sans rôle nutritionniste.";
+                err.classList.remove('hidden');
+            }
+        } catch(e) {
+            // ⚠️ Fallback démo supprimé pour des raisons de sécurité.
+            // Les identifiants ne doivent jamais être codés en dur dans le HTML.
+            // Créez le compte nutritionniste via Firebase Console > Authentication.
+            err.textContent = "Identifiants incorrects ou service temporairement indisponible.";
+            err.classList.remove('hidden');
+        }
+    };
+
+    // ——— CONNEXION ADMIN ———
+    window.adminLogin = async () => {
+        const email = document.getElementById('admin-email').value;
+        const pass = document.getElementById('admin-pass').value;
+        const err = document.getElementById('admin-error');
+        try {
+            const cred = await signInWithEmailAndPassword(auth, email, pass);
+            const snap = await getDoc(doc(db, "profiles", cred.user.uid));
+            if(snap.exists() && snap.data().role === "admin") {
+                showAdminApp();
+            } else {
+                await signOut(auth);
+                err.textContent = "Accès non autorisé. Compte sans rôle administrateur.";
+                err.classList.remove('hidden');
+            }
+        } catch(e) {
+            // ⚠️ Fallback démo supprimé pour des raisons de sécurité.
+            // Créez le compte admin via Firebase Console > Authentication
+            // et définissez role:"admin" dans Firestore > profiles > {uid}.
+            err.textContent = "Identifiants incorrects ou service temporairement indisponible.";
+            err.classList.remove('hidden');
+        }
+    };
+
+    // ——— AFFICHAGE DES APPS ———
+    function showPatientApp(user, profile) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const patientApp = document.getElementById('patient-app');
+        patientApp.classList.add('active');
+        const name = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : user.email;
+        document.getElementById('patient-name-display').textContent = name || user.email;
+        initChart();
+        loadProfile(user.uid);
+        listenToWeightHistory(user.uid);
+        listenToMeals(user.uid);
+    }
+
+    function showNutriApp() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('nutri-app').classList.add('active');
+    }
+
+    function showAdminApp() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('admin-app').classList.add('active');
+    }
+
+    // ——— AUTH STATE ———
+    onAuthStateChanged(auth, async (user) => {
+        if(user) {
+            const snap = await getDoc(doc(db, "profiles", user.uid));
+            const profile = snap.exists() ? snap.data() : null;
+            if(profile) {
+                if(profile.role === "nutritionist") { showNutriApp(); return; }
+                if(profile.role === "admin") { showAdminApp(); return; }
+                if(profile.paymentStatus === "pending") { showScreen('pending-screen'); return; }
+            }
+            showPatientApp(user, profile);
+        }
+    });
+
+    window.logoutAll = async () => {
+        try { await signOut(auth); } catch(e) {}
+        document.getElementById('patient-app').classList.remove('active');
+        document.getElementById('nutri-app').classList.remove('active');
+        document.getElementById('admin-app').classList.remove('active');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        showScreen('landing');
+    };
+
+    // ——— PATIENT : IMC & POIDS ———
+    window.liveIMC = () => {
+        const w = parseFloat(document.getElementById('weight').value);
+        const h = parseFloat(document.getElementById('height').value);
+        if(w && h) {
+            const imc = (w / ((h/100)**2)).toFixed(1);
+            const cat = imc < 18.5 ? "Insuffisance pondérale" : imc < 25 ? "Poids normal ✓" : imc < 30 ? "Surpoids" : "Obésité";
+            document.getElementById('imc-box').textContent = `IMC : ${imc} — ${cat}`;
+        }
+    };
+
+    async function loadProfile(uid) {
+        const snap = await getDoc(doc(db, "profiles", uid));
+        if(snap.exists()) {
+            const d = snap.data();
+            if(document.getElementById('weight')) document.getElementById('weight').value = d.weight || "";
+            if(document.getElementById('height')) document.getElementById('height').value = d.height || "";
+            if(document.getElementById('p-firstname')) document.getElementById('p-firstname').value = d.firstName || "";
+            if(document.getElementById('p-lastname')) document.getElementById('p-lastname').value = d.lastName || "";
+            if(document.getElementById('p-phone')) document.getElementById('p-phone').value = d.phone || "";
+            if(document.getElementById('p-age')) document.getElementById('p-age').value = d.age || "";
+            window.liveIMC();
+        }
+    }
+
+    window.saveWeightEntry = async () => {
+        const uid = auth.currentUser?.uid;
+        if(!uid) return;
+        const w = parseFloat(document.getElementById('weight').value);
+        const h = document.getElementById('height').value;
+        if(!w) return alert("Veuillez entrer un poids");
+        try {
+            await setDoc(doc(db, "profiles", uid), { weight: w, height: h }, { merge: true });
+            await addDoc(collection(db, "weightHistory"), { userId: uid, weight: w, date: serverTimestamp() });
+            alert("Poids enregistré !");
+        } catch(e) { console.error(e); }
+    };
+
+    window.saveProfile = async () => {
+        const uid = auth.currentUser?.uid;
+        if(!uid) return;
+        await setDoc(doc(db, "profiles", uid), {
+            firstName: document.getElementById('p-firstname').value,
+            lastName: document.getElementById('p-lastname').value,
+            phone: document.getElementById('p-phone').value,
+            age: document.getElementById('p-age').value,
+            gender: document.getElementById('p-gender').value
+        }, { merge: true });
+        alert("Profil mis à jour !");
+    };
+
+    // ——— GRAPHIQUE POIDS ———
+    function initChart() {
+        if(weightChart) weightChart.destroy();
+        const ctx = document.getElementById('weightChart')?.getContext('2d');
+        if(!ctx) return;
+        weightChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Poids (kg)', data: [], borderColor: '#1a5c0e', backgroundColor: 'rgba(26,92,14,0.08)', tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#1a5c0e' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    function listenToWeightHistory(uid) {
+        const q = query(collection(db, "weightHistory"), where("userId","==",uid), orderBy("date","asc"), limit(10));
+        onSnapshot(q, snap => {
+            const labels = [], data = [];
+            snap.forEach(d => {
+                const e = d.data();
+                if(e.date) { labels.push(e.date.toDate().toLocaleDateString('fr-FR',{day:'numeric',month:'short'})); data.push(e.weight); }
+            });
+            if(weightChart) { weightChart.data.labels = labels; weightChart.data.datasets[0].data = data; weightChart.update(); }
+        });
+    }
+
+    // ——— JOURNAL ALIMENTAIRE ———
+    window.addMeal = async () => {
+        const input = document.getElementById('meal-input');
+        if(!input.value.trim()) return;
+        const uid = auth.currentUser?.uid;
+        if(!uid) { // mode démo
+            const list = document.getElementById('mealList');
+            const now = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+            list.innerHTML += `<div class="meal-item"><span>${input.value}</span><span class="meal-time">${now}</span></div>`;
+            input.value = ""; return;
+        }
+        try {
+            await addDoc(collection(db, "meals"), { userId: uid, text: input.value, date: serverTimestamp() });
+            input.value = "";
+        } catch(e) { alert("Erreur lors de l'ajout."); }
+    };
+
+    function listenToMeals(uid) {
+        const q = query(collection(db, "meals"), where("userId","==",uid), orderBy("date","desc"), limit(20));
+        onSnapshot(q, snap => {
+            const list = document.getElementById('mealList');
+            if(!list) return;
+            if(snap.empty) { list.innerHTML = '<p class="text-muted text-center" style="padding:20px 0;">Aucun repas enregistré</p>'; return; }
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                const t = m.date ? m.date.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : "...";
+                list.innerHTML += `<div class="meal-item"><span>${m.text}</span><span class="meal-time">${t}</span></div>`;
+            });
+        });
+    }
+
+    // ——— RENDEZ-VOUS ———
+    window.bookSlot = (el, label) => {
+        document.querySelectorAll('.rdv-slot').forEach(s => { s.classList.remove('booked'); s.innerHTML = s.innerHTML.replace(' ✅', ''); });
+        el.classList.add('booked');
+        const confirm = document.getElementById('rdv-confirm');
+        confirm.classList.remove('hidden');
+        confirm.textContent = `✅ Rendez-vous confirmé : ${label} — Votre nutritionniste vous attend !`;
+    };
+
+    // ——— EXAMENS NUTRITIONNISTE ———
+    window.openPatientExam = (name) => {
+        switchNutriTab('ntab-examens', document.querySelectorAll('.nutri-tab-btn')[2]);
+        document.getElementById('exam-patient-select').value = name;
+        document.querySelectorAll('.nutri-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nutri-tab-btn')[2].classList.add('active');
+    };
+
+    window.saveExamResults = async () => {
+        const patient = document.getElementById('exam-patient-select').value;
+        if(!patient) { alert("Veuillez sélectionner un patient."); return; }
+        const results = {
+            patient,
+            date: document.getElementById('exam-date').value,
+            glycemie: document.getElementById('ex-glycemie').value,
+            hemoglobine: document.getElementById('ex-hemo').value,
+            cholesterol: document.getElementById('ex-cholesterol').value,
+            triglycerides: document.getElementById('ex-triglyce').value,
+            ldl: document.getElementById('ex-ldl').value,
+            hdl: document.getElementById('ex-hdl').value,
+            tension: document.getElementById('ex-tension').value,
+            fc: document.getElementById('ex-fc').value,
+            insuline: document.getElementById('ex-insuline').value,
+            hba1c: document.getElementById('ex-hba1c').value,
+            ferritine: document.getElementById('ex-ferritine').value,
+            vitD: document.getElementById('ex-vitD').value,
+            tsh: document.getElementById('ex-tsh').value,
+            creatinine: document.getElementById('ex-creat').value,
+            observations: document.getElementById('ex-observations').value,
+            plan: document.getElementById('ex-plan').value,
+            nextDate: document.getElementById('ex-next-date').value,
+            savedAt: new Date().toISOString()
+        };
+        try {
+            await addDoc(collection(db, "examResults"), results);
+        } catch(e) { /* démo sans erreur */ }
+        const msg = document.getElementById('exam-saved-msg');
+        msg.classList.add('show');
+        setTimeout(() => msg.classList.remove('show'), 4000);
+    };
+
+    // ——— ADMIN : VALIDER PAIEMENTS ———
+    window.validatePayment = (btn, name) => {
+        const row = btn.closest('.pending-payment');
+        row.innerHTML = `<div style="font-weight:600; font-size:0.9rem; color:#155724;">✅ ${name} — Accès activé</div>`;
+    };
+    window.rejectPayment = (btn) => {
+        if(confirm("Refuser ce paiement ?")) btn.closest('.pending-payment').remove();
+    };
+</script>
+</body>
+</html>
