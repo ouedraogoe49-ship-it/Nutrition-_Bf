@@ -1031,28 +1031,49 @@ import {
   query, where, orderBy, limit, onSnapshot, serverTimestamp, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
+/*
+============================================================
+🔒 CONFIGURATION FIREBASE
+============================================================
+Remplacez les valeurs ci-dessous par votre configuration Firebase.
+Obtenez-la dans Firebase Console > Project Settings > Your apps.
+
+⚠️ SÉCURITÉ : Déployez les règles Firestore suivantes :
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /profiles/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /weightHistory/{doc} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAdmin();
+      allow update: if request.auth.uid == userId && !("role" in request.resource.data);
     }
-    match /meals/{doc} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+    match /weightHistory/{docId} {
+      allow create: if isOwner(request.resource.data.userId);
+      allow read: if isOwner(resource.data.userId) || isNutritionist();
+    }
+    match /meals/{docId} {
+      allow create: if isOwner(request.resource.data.userId);
+      allow read: if isOwner(resource.data.userId) || isNutritionist();
+    }
+    match /examResults/{docId} {
+      allow create: if isNutritionist();
+      allow read: if isOwner(resource.data.userId) || isNutritionist();
+      allow update: if isNutritionist();
+    }
+    match /payments/{docId} {
       allow create: if request.auth != null;
+      allow read, update: if isAdmin();
     }
-    match /examResults/{doc} {
-      allow read, write: if request.auth != null;
-    }
-    match /pendingPayments/{doc} {
-      allow read, write: if request.auth != null;
+    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function isAdmin() { return request.auth != null && get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == "admin"; }
+    function isNutritionist() { return request.auth != null && get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == "nutritionist"; }
   }
 }
-  
+============================================================
+*/
+
 const firebaseConfig = {
   apiKey: "AIzaSyDFt9q5ny7LW8bllLzsFL0lr5T9U4LXD2A",
   authDomain: "nutsan-e226-16cfe.firebaseapp.com",
