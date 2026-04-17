@@ -1031,14 +1031,6 @@ import {
   query, where, orderBy, limit, onSnapshot, serverTimestamp, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-============================================================
-🔒 CONFIGURATION FIREBASE
-============================================================
-Remplacez les valeurs ci-dessous par votre configuration Firebase.
-Obtenez-la dans Firebase Console > Project Settings > Your apps.
-
-⚠️ SÉCURITÉ : Déployez les règles Firestore suivantes :
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -1060,8 +1052,7 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
   }
 }
-============================================================
-
+  
 const firebaseConfig = {
   apiKey: "AIzaSyDFt9q5ny7LW8bllLzsFL0lr5T9U4LXD2A",
   authDomain: "nutsan-e226-16cfe.firebaseapp.com",
