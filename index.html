@@ -3,70 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NUTSAN — Version Finale Corrigée</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<title>NUTSAN — Back-office Nutritionniste</title>
 <style>
-body{margin:0;font-family:sans-serif;overflow:hidden}
-.screen{
-  display:none;
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  overflow-y:auto;
-  background:#f0f4ee;
-}
-.screen.active{
-  display:block;
-  animation:fadeSlide .3s ease;
-}
-@keyframes fadeSlide{
-  from{opacity:0; transform:translateX(20px)}
-  to{opacity:1; transform:translateX(0)}
-}
-button{padding:10px;margin:5px}
+body{font-family:Arial;margin:20px;background:#f5f8f4}
+.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}
+button{padding:10px;border:none;background:#2A9420;color:#fff;border-radius:6px;cursor:pointer}
+input,textarea{width:100%;padding:8px;margin-top:5px;margin-bottom:10px}
+.msg{padding:8px;border-radius:8px;margin:5px 0}
+.me{background:#2A9420;color:#fff;text-align:right}
+.other{background:#eee}
 </style>
 </head>
-
 <body>
 
-<!-- LANDING -->
-<div id="landing" class="screen active">
-  <h2>NUTSAN</h2>
-  <button onclick="showScreen('register')">Créer compte</button>
-  <button onclick="showScreen('login')">Connexion</button>
+<h2>🩺 Back-office Nutritionniste (NUTSAN)</h2>
+
+<!-- LOGIN NUTRI -->
+<div class="card">
+<h3>Connexion Nutritionniste</h3>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Mot de passe">
+<button onclick="login()">Connexion</button>
 </div>
 
-<!-- REGISTER -->
-<div id="register" class="screen">
-  <h3>Inscription</h3>
-  <input id="email" placeholder="email"><br>
-  <input id="pass" type="password" placeholder="mot de passe"><br>
-  <button onclick="goToPayment()">Continuer</button>
-  <button onclick="showScreen('landing')">Retour</button>
+<!-- PATIENTS -->
+<div class="card">
+<h3>👥 Liste des patients</h3>
+<div id="patients"></div>
 </div>
 
-<!-- LOGIN -->
-<div id="login" class="screen">
-  <h3>Connexion</h3>
-  <input id="login-email" placeholder="email"><br>
-  <input id="login-pass" type="password" placeholder="mot de passe"><br>
-  <button onclick="patientLogin()">Se connecter</button>
-  <button onclick="showScreen('landing')">Retour</button>
+<!-- PRESCRIPTION -->
+<div class="card">
+<h3>📄 Envoyer prescription</h3>
+<input id="patientId" placeholder="ID patient">
+<input type="file" id="prescription">
+<button onclick="sendPrescription()">Envoyer</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="screen">
-  <h3>Bienvenue</h3>
-  <button onclick="logoutAll()">Déconnexion</button>
+<!-- RESULTATS PATIENT -->
+<div class="card">
+<h3>📂 Résultats patients</h3>
+<div id="results"></div>
+</div>
+
+<!-- CHAT -->
+<div class="card">
+<h3>💬 Chat avec patient</h3>
+<input id="chatPatientId" placeholder="ID patient">
+<div id="chatBox"></div>
+<input id="msg" placeholder="Message">
+<button onclick="sendMsg()">Envoyer</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, setDoc, doc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+// ⚠️ REMPLACE PAR TA CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDFt9q5ny7LW8bllLzsFL0lr5T9U4LXD2A",
   authDomain: "nutsan-e226-16cfe.firebaseapp.com",
@@ -79,72 +75,83 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-// NAVIGATION
-window.showScreen = (id) => {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-};
-
-// REGISTER
-window.goToPayment = () => {
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('pass').value;
-
-  if(pass.length < 6){
-    alert("Mot de passe trop court");
-    return;
-  }
-
-  window.tempUser = { email, pass };
-  submitPayment();
-};
-
-// CREATE ACCOUNT
-window.submitPayment = async () => {
-  try{
-    const u = window.tempUser;
-    const cred = await createUserWithEmailAndPassword(auth, u.email, u.pass);
-
-    await setDoc(doc(db, "profiles", cred.user.uid), {
-      email: u.email,
-      role: "patient",
-      createdAt: serverTimestamp()
-    });
-
-    await addDoc(collection(db, "pendingPayments"), {
-      userId: cred.user.uid,
-      status: "pending",
-      createdAt: serverTimestamp()
-    });
-
-    alert("Compte créé");
-    showScreen('app');
-
-  }catch(e){ alert(e.message); }
-};
+const storage = getStorage(app);
 
 // LOGIN
-window.patientLogin = async () => {
-  try{
-    const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-pass').value;
+window.login = async function(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    await signInWithEmailAndPassword(auth, email, pass);
-    showScreen('app');
+  await signInWithEmailAndPassword(auth, email, password);
+  alert("Connecté");
+  loadPatients();
+  loadResults();
+}
 
-  }catch(e){ alert(e.message); }
-};
+// LOAD PATIENTS
+function loadPatients(){
+  onSnapshot(collection(db, "patients"), (snap)=>{
+    let html="";
+    snap.forEach(doc=>{
+      html += `<p>${doc.id}</p>`;
+    });
+    document.getElementById("patients").innerHTML = html;
+  });
+}
 
-// LOGOUT
-window.logoutAll = async () => {
-  await signOut(auth);
-  showScreen('landing');
-};
+// SEND PRESCRIPTION
+window.sendPrescription = async function(){
+  const file = document.getElementById("prescription").files[0];
+  const patientId = document.getElementById("patientId").value;
 
-// SESSION
-onAuthStateChanged(auth, user => {
-  if(user){ showScreen('app'); }
+  const storageRef = ref(storage, "prescriptions/" + patientId + "/" + file.name);
+  await uploadBytes(storageRef, file);
+
+  const url = await getDownloadURL(storageRef);
+
+  await addDoc(collection(db, "prescriptions"), {
+    patientId: patientId,
+    file: url,
+    date: Date.now()
+  });
+
+  alert("Prescription envoyée");
+}
+
+// LOAD RESULTS
+function loadResults(){
+  onSnapshot(collection(db, "results"), (snap)=>{
+    let html="";
+    snap.forEach(doc=>{
+      const r = doc.data();
+      html += `<p><a href="${r.file}" target="_blank">${r.name}</a></p>`;
+    });
+    document.getElementById("results").innerHTML = html;
+  });
+}
+
+// CHAT
+window.sendMsg = async function(){
+  const text = document.getElementById("msg").value;
+  const patientId = document.getElementById("chatPatientId").value;
+
+  await addDoc(collection(db, "messages"), {
+    text: text,
+    to: patientId,
+    from: auth.currentUser.uid,
+    time: Date.now()
+  });
+
+  document.getElementById("msg").value="";
+}
+
+onSnapshot(collection(db, "messages"), (snap)=>{
+  let html="";
+  snap.forEach(doc=>{
+    const m = doc.data();
+    html += `<div class="msg ${m.from===auth.currentUser?.uid?'me':'other'}">${m.text}</div>`;
+  });
+  document.getElementById("chatBox").innerHTML = html;
 });
 
 </script>
