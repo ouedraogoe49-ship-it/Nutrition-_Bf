@@ -6,6 +6,37 @@
 <title>NUTSAN — Clinique Nutritionnelle</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFt9q5ny7LW8bllLzsFL0lr5T9U4LXD2A",
+    authDomain: "nutsan-e226-16cfe.firebaseapp.com",
+    projectId: "nutsan-e226-16cfe",
+    storageBucket: "nutsan-e226-16cfe.firebasestorage.app",
+    messagingSenderId: "1034994184929",
+    appId: "1:1034994184929:web:5bd47d57c17a374960bda0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Exposer les fonctions Firebase globalement
+  window._firebaseAuth = auth;
+  window._firebaseSignIn = signInWithEmailAndPassword;
+  window._firebaseSignOut = signOut;
+
+  // Surveiller l'état de connexion admin
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window._firebaseUser = user;
+    } else {
+      window._firebaseUser = null;
+    }
+  });
+</script>
 <style>
 :root{
   --g1:#1A5C0E;--g2:#237A18;--g3:#2A9420;--g4:#4DB840;
@@ -996,12 +1027,12 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
 <div id="pg-landing" class="page active">
   <div style="padding:36px 36px 60px;max-width:1100px">
 
-    <!-- Bandeau démo -->
+    <!-- Bandeau bienvenue -->
     <div style="background:linear-gradient(90deg,#1A5C0E,#2A9420);color:white;border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <div style="font-size:24px">🌿</div>
       <div style="flex:1">
         <div style="font-size:14px;font-weight:800;margin-bottom:2px">Bienvenue sur NUTSAN — Clinique Nutritionnelle du Burkina Faso</div>
-        <div style="font-size:12px;opacity:.85">Connectez-vous pour accéder à votre espace patient, ou explorez nos fonctionnalités ci-dessous.</div>
+        <div style="font-size:12px;opacity:.85">Connectez-vous pour accéder à votre espace patient, ou inscrivez-vous pour démarrer votre suivi nutritionnel.</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="showPage('pg-login','nav-login')" style="padding:9px 18px;background:white;color:#1A5C0E;border:none;border-radius:50px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">🔐 Connexion</button>
@@ -1244,14 +1275,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
     <div class="fld"><label>Mot de passe</label><input id="log-pw" type="password" placeholder="••••••••"></div>
     <button class="btn btn-green" onclick="patientLogin()">Se connecter</button>
     <button class="btn btn-ghost" onclick="showPage('pg-register','nav-register')">Créer un dossier patient</button>
-    <!-- Accès démo rapide -->
-    <div style="margin-top:16px;background:#F0FAF0;border:1px solid #C8E8C8;border-radius:12px;padding:14px 16px">
-      <div style="font-size:11px;font-weight:800;color:#2A9420;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🚀 Accès démo rapide</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button onclick="document.getElementById('log-email').value='patient@nutsan.bf';document.getElementById('log-pw').value='patient123'" style="background:white;border:1.5px solid #C8E8C8;border-radius:8px;padding:8px 12px;text-align:left;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:#2E3D2C;font-weight:600">👤 Patient démo → patient@nutsan.bf / patient123</button>
-        <button onclick="document.getElementById('log-email').value='demo@nutsan.bf';document.getElementById('log-pw').value='demo123'" style="background:white;border:1.5px solid #C8E8C8;border-radius:8px;padding:8px 12px;text-align:left;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:#2E3D2C;font-weight:600">👤 Patient 2 → demo@nutsan.bf / demo123</button>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -1266,10 +1290,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
     <div class="fld"><label>Identifiant</label><input id="nu-email" type="email" placeholder="dr.nom@nutsan.bf"></div>
     <div class="fld"><label>Mot de passe</label><input id="nu-pw" type="password" placeholder="••••••••"></div>
     <button class="btn btn-blue" onclick="nutriLogin()">Accéder au tableau de bord</button>
-    <div style="margin-top:16px;background:#EBF1FC;border:1px solid #B5C8F0;border-radius:12px;padding:14px 16px">
-      <div style="font-size:11px;font-weight:800;color:#1E4FA0;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🚀 Accès démo</div>
-      <button onclick="document.getElementById('nu-email').value='dr@nutsan.bf';document.getElementById('nu-pw').value='nutri123'" style="background:white;border:1.5px solid #B5C8F0;border-radius:8px;padding:8px 12px;text-align:left;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:#2E3D2C;font-weight:600;width:100%">🩺 Dr. Rouamba → dr@nutsan.bf / nutri123</button>
-    </div>
+
   </div>
 </div>
 
@@ -1284,10 +1305,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
     <div class="fld"><label>Email admin</label><input id="ad-email" type="email" placeholder="admin@nutsan.bf"></div>
     <div class="fld"><label>Mot de passe</label><input id="ad-pw" type="password" placeholder="••••••••"></div>
     <button class="btn btn-purple" onclick="adminLogin()">Accéder →</button>
-    <div style="margin-top:16px;background:#F1EBF9;border:1px solid #C5A8E8;border-radius:12px;padding:14px 16px">
-      <div style="font-size:11px;font-weight:800;color:#5E2BA0;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🚀 Accès démo</div>
-      <button onclick="document.getElementById('ad-email').value='admin@nutsan.bf';document.getElementById('ad-pw').value='admin123'" style="background:white;border:1.5px solid #C5A8E8;border-radius:8px;padding:8px 12px;text-align:left;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:#2E3D2C;font-weight:600;width:100%">⚙️ Admin → admin@nutsan.bf / admin123</button>
-    </div>
+
   </div>
 </div>
 
@@ -2882,7 +2900,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
 <script>
 /* ══════════════════════════════════════════════════════════
    NUTSAN — Script principal autonome (sans Firebase requis)
-   Tout fonctionne en mode démo / local avec sessionStorage
+   Tout fonctionne avec sessionStorage (données locales par session)
 ══════════════════════════════════════════════════════════ */
 
 /* ── UTILS ── */
@@ -3001,13 +3019,8 @@ window.setActiveNav = btn => {
 };
 
 /* ── AUTH LOCAL ── */
-// Comptes de démo pré-enregistrés
-const DEMO_ACCOUNTS = {
-  'patient@nutsan.bf': { pw: 'patient123', role: 'patient', firstName: 'Fatou', lastName: 'Traoré' },
-  'demo@nutsan.bf':    { pw: 'demo123',    role: 'patient', firstName: 'Moussa', lastName: 'Sawadogo' },
-  'dr@nutsan.bf':      { pw: 'nutri123',   role: 'nutritionist', firstName: 'Dr. Aminata', lastName: 'Rouamba' },
-  'admin@nutsan.bf':   { pw: 'admin123',   role: 'admin', firstName: 'Admin', lastName: 'NUTSAN' },
-};
+// Seuls les comptes créés dynamiquement (nouveaux patients via inscription) sont stockés ici
+const DEMO_ACCOUNTS = {};
 
 window.goToPayment = () => {
   const fn = v('reg-fn'), ln = v('reg-ln'), em = v('reg-email'), pw = v('reg-pw'), pw2 = v('reg-pw2');
@@ -3075,15 +3088,42 @@ window.nutriLogin = () => {
   } else { err.textContent = 'Identifiants incorrects'; err.classList.add('show'); }
 };
 
-window.adminLogin = () => {
+window.adminLogin = async () => {
   const em = v('ad-email'), pw = v('ad-pw');
   const err = document.getElementById('adm-err');
-  const acc = DEMO_ACCOUNTS[em];
-  if (acc && acc.pw === pw && acc.role === 'admin') {
+  const btn = document.querySelector('#admin-login .btn-cta-primary') || document.querySelector('[onclick="adminLogin()"]');
+  if (!em || !pw) { err.textContent = 'Remplissez tous les champs'; err.classList.add('show'); return; }
+
+  // Indiquer chargement
+  if (btn) { btn.textContent = '⏳ Connexion…'; btn.disabled = true; }
+  err.classList.remove('show');
+
+  if (!window._firebaseAuth || !window._firebaseSignIn) {
+    err.textContent = 'Firebase non initialisé. Rechargez la page.'; err.classList.add('show');
+    if (btn) { btn.textContent = 'Se connecter'; btn.disabled = false; }
+    return;
+  }
+
+  try {
+    const cred = await window._firebaseSignIn(window._firebaseAuth, em, pw);
+    const user = cred.user;
+    appState.user = { email: user.email, role: 'admin', firstName: 'Admin', lastName: 'NUTSAN' };
     err.classList.remove('show');
-    appState.user = { email: em, ...acc };
+    if (btn) { btn.textContent = 'Se connecter'; btn.disabled = false; }
     showAdmin();
-  } else { err.textContent = 'Identifiants incorrects'; err.classList.add('show'); }
+  } catch (e) {
+    if (btn) { btn.textContent = 'Se connecter'; btn.disabled = false; }
+    const codes = {
+      'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+      'auth/user-not-found': 'Aucun compte trouvé avec cet email.',
+      'auth/wrong-password': 'Mot de passe incorrect.',
+      'auth/invalid-email': 'Adresse email invalide.',
+      'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
+      'auth/network-request-failed': 'Erreur réseau. Vérifiez votre connexion.',
+    };
+    err.textContent = codes[e.code] || ('Erreur : ' + e.message);
+    err.classList.add('show');
+  }
 };
 
 function showPatient() {
@@ -3135,7 +3175,11 @@ function showAdmin() {
   toast('Espace admin activé ⚙️');
 }
 
-window.logout = () => {
+window.logout = async () => {
+  // Déconnexion Firebase si l'utilisateur était admin
+  if (appState.user?.role === 'admin' && window._firebaseAuth && window._firebaseSignOut) {
+    try { await window._firebaseSignOut(window._firebaseAuth); } catch(e) {}
+  }
   appState.user = null;
   set2('gsb-user-name', 'Nouveau visiteur');
   set2('gsb-user-role', 'Créez votre compte');
@@ -3966,13 +4010,7 @@ window.openBilan = name => { ntTab('ntab-bilan', document.querySelectorAll('#nut
 window.filterNutriDocs = (btn, cat) => { document.querySelectorAll('#ntab-docs .doc-cat-tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('#nutri-docs-list .doc-file').forEach(f => { f.style.display = (cat === 'tous' || f.dataset.ncat === cat) ? 'flex' : 'none'; }); };
 
 /* ── ADMIN ── */
-const DEMO_PATIENTS = [
-  { firstName: 'Fatou', lastName: 'Traoré', email: 'fatou@gmail.com', paymentStatus: 'active', createdAt: '01/04/2026' },
-  { firstName: 'Moussa', lastName: 'Sawadogo', email: 'moussa@gmail.com', paymentStatus: 'active', createdAt: '31/03/2026' },
-  { firstName: 'Aïssata', lastName: 'Kaboré', email: 'aissata@gmail.com', paymentStatus: 'pending', createdAt: '30/03/2026' },
-  { firstName: 'Ibrahim', lastName: 'Belem', email: 'ibrahim@gmail.com', paymentStatus: 'active', createdAt: '29/03/2026' },
-  { firstName: 'Salimata', lastName: 'Ouédraogo', email: 'salimata@gmail.com', paymentStatus: 'pending', createdAt: '28/03/2026' },
-];
+const DEMO_PATIENTS = []; // Les vrais patients seront chargés depuis Firebase
 
 function loadAdminData() {
   const active = DEMO_PATIENTS.filter(p => p.paymentStatus === 'active').length;
@@ -3981,12 +4019,14 @@ function loadAdminData() {
   set2('s-pat', active); set2('s-pend', pend); set2('s-rev', rev.toLocaleString('fr-FR'));
   const bar = document.getElementById('s-bar'); if (bar) bar.style.width = Math.min((rev / 100000) * 100, 100) + '%';
   const rl = document.getElementById('dash-recent');
-  if (rl) rl.innerHTML = DEMO_PATIENTS.slice(0, 5).map(p => { const ini = (p.firstName[0] + p.lastName[0]).toUpperCase(); return `<div class="p-row"><div class="av">${ini}</div><div><h4>${p.firstName} ${p.lastName}</h4><p>${p.email} · ${p.createdAt}</p></div><div class="badge ${p.paymentStatus === 'active' ? 'ok' : 'wait'}">${p.paymentStatus === 'active' ? 'Actif' : 'Attente'}</div></div>`; }).join('');
+  if (rl) rl.innerHTML = DEMO_PATIENTS.length === 0
+    ? '<p style="padding:20px;text-align:center;color:var(--ink4);font-size:13px">Aucun patient pour l\'instant</p>'
+    : DEMO_PATIENTS.slice(0, 5).map(p => { const ini = (p.firstName[0] + p.lastName[0]).toUpperCase(); return `<div class="p-row"><div class="av">${ini}</div><div><h4>${p.firstName} ${p.lastName}</h4><p>${p.email} · ${p.createdAt}</p></div><div class="badge ${p.paymentStatus === 'active' ? 'ok' : 'wait'}">${p.paymentStatus === 'active' ? 'Actif' : 'Attente'}</div></div>`; }).join('');
   const pl = document.getElementById('pays-list');
-  if (pl) { const pends = DEMO_PATIENTS.filter(p => p.paymentStatus === 'pending'); pl.innerHTML = pends.length === 0 ? '<p class="tm tc" style="padding:16px 0">✅ Aucun paiement en attente</p>' : pends.map(p => { const ini = (p.firstName[0] + p.lastName[0]).toUpperCase(); return `<div class="pay-row"><div style="display:flex;align-items:center;gap:12px"><div class="av">${ini}</div><div><div style="font-weight:700;font-size:13px">${p.firstName} ${p.lastName}</div><div style="font-size:11px;color:var(--ink3)">${p.email}</div></div></div><div><button class="btn-ok" onclick="valPayDemo(this,'${p.firstName} ${p.lastName}')">✓ Valider</button><button class="btn-ko" onclick="this.closest('.pay-row').remove();toast('Paiement refusé')">✗</button></div></div>`; }).join(''); }
+  if (pl) { const pends = DEMO_PATIENTS.filter(p => p.paymentStatus === 'pending'); pl.innerHTML = pends.length === 0 ? '<p class="tm tc" style="padding:16px 0">✅ Aucun paiement en attente</p>' : pends.map(p => { const ini = (p.firstName[0] + p.lastName[0]).toUpperCase(); return `<div class="pay-row"><div style="display:flex;align-items:center;gap:12px"><div class="av">${ini}</div><div><div style="font-weight:700;font-size:13px">${p.firstName} ${p.lastName}</div><div style="font-size:11px;color:var(--ink3)">${p.email}</div></div></div><div><button class="btn-ok" onclick="validerPaiement(this,'${p.firstName} ${p.lastName}')">✓ Valider</button><button class="btn-ko" onclick="this.closest('.pay-row').remove();toast('Paiement refusé')">✗</button></div></div>`; }).join(''); }
   renderPats(DEMO_PATIENTS);
 }
-window.valPayDemo = (btn, name) => { btn.disabled = true; btn.textContent = '⏳'; setTimeout(() => { btn.closest('.pay-row').innerHTML = `<div style="font-weight:700;color:var(--g2)">✅ ${name} — Accès activé</div>`; toast(`Accès activé pour ${name}`); }, 800); };
+window.validerPaiement = (btn, name) => { btn.disabled = true; btn.textContent = '⏳'; setTimeout(() => { btn.closest('.pay-row').innerHTML = `<div style="font-weight:700;color:var(--g2)">✅ ${name} — Accès activé</div>`; toast(`Accès activé pour ${name}`); }, 800); };
 function renderPats(all) { const list = document.getElementById('all-pats'); if (!list) return; list.innerHTML = all.length === 0 ? '<p class="tm tc" style="padding:16px 0">Aucun patient</p>' : all.map(p => { const ini = (p.firstName[0] + p.lastName[0]).toUpperCase(); return `<div class="p-row"><div class="av">${ini}</div><div><h4>${p.firstName} ${p.lastName}</h4><p>${p.email}</p></div><div class="badge ${p.paymentStatus === 'active' ? 'ok' : 'wait'}">${p.paymentStatus === 'active' ? 'Actif' : 'Attente'}</div></div>`; }).join(''); }
 window.filterAdmPats = () => { const q = v('pat-search').toLowerCase(); renderPats(DEMO_PATIENTS.filter(p => (p.firstName + ' ' + p.lastName).toLowerCase().includes(q) || p.email.toLowerCase().includes(q))); };
 window.createNutri = () => { const em = v('nn-email'), pw = v('nn-pw'); if (!em || !pw) return toast('Remplissez email et mot de passe', 'er'); DEMO_ACCOUNTS[em] = { pw, role: 'nutritionist', firstName: 'Dr.', lastName: em.split('@')[0] }; document.getElementById('nn-email').value = ''; document.getElementById('nn-pw').value = ''; toast(`Compte créé pour ${em}`); };
